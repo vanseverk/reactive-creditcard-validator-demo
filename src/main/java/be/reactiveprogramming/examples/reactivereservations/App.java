@@ -39,7 +39,7 @@ public class App {
     Mono<Void> emptyBannedCreditCardsFlow = bannedCreditCardRepository.deleteAll();
 
     Flux<BannedCreditcard> fillWithCreditCardsFlow =
-        Flux.range(1, 100000)
+        Flux.range(1, 1000000)
             .filter(i -> i % 2 == 0)
             .map(i -> new BannedCreditcard("" + i))
             .flatMap(bcc -> bannedCreditCardRepository.save(bcc));
@@ -55,7 +55,7 @@ public class App {
 
     Receiver receiver = ReactorRabbitMq.createReceiver();
 
-    receiver.consumeManualAck(queue, new ConsumeOptions().qos(5))
+    receiver.consumeManualAck(queue, new ConsumeOptions().qos(1))
         .flatMap(msg -> validateCreditCards(msg, bannedCreditCardRepository))
         .subscribe(msg -> msg.ack(false));
 
@@ -78,10 +78,10 @@ public class App {
   }
 
   private static byte[] randomCreditCardNumbers() {
-    String randomList = "" + r.nextInt(100000);
+    String randomList = "" + r.nextInt(1000000);
 
     for(int i = 0; i < 4; i++) {
-      randomList += "," + r.nextInt(100000);
+      randomList += "," + r.nextInt(1000000);
     }
 
     return randomList.getBytes();
